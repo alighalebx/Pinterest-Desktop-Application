@@ -1,0 +1,97 @@
+Create Table Users
+(UserName varchar2(20) Primary key,
+Passwords varchar2(16) not null, Board varchar2(20));
+
+
+
+insert into users (username, passwords) values ('Kassab', 'Kassab');
+insert into users (username, passwords) values ('Ghaleb', 'Ghaleb');
+
+Create Table Images
+(ImgID number(10) primary key, ImgTitle varchar2(50),
+ImgDesc varchar2(150), ImgCategory varchar2(20) not null, image varchar2(150) not null,
+Uploader varchar2(20) not null,
+Foreign Key (Uploader) references Users(UserName) );
+
+Create Table Reviews
+(ImageId number(10), Comments varchar2(150), Pinned char Default 'n',
+Foreign Key (imageID) References images(imgID),
+Constraint  ck_Pinned Check (Pinned IN ('y','n')));
+
+Create Table Connections
+(ConnectedUserName varchar2(20), Platforms varchar2(30),
+Foreign Key (ConnectedUserName) References Users(UserName) ); 
+
+Create Table likes
+(LikeImageId number(10) ,likeUsername varchar2(20), Liked char Default 'n',
+Foreign Key (LikeimageID) References images(imgID), Foreign Key (likeUsername) references Users(UserName),
+Constraint ck_Liked Check (Liked IN ('y','n')));
+
+
+create or replace procedure getcomments
+(imgid in number , CID out sys_refcursor)
+as
+begin
+open CID for
+select comments
+from reviews r
+where imgid = r.imageid  ;
+end;
+
+
+create table userlikes
+(imgid number(10), username varchar2(10),
+foreign key (imgid) references images(imgid),
+foreign key (username) references users(username));
+
+CREATE SEQUENCE ImgIdSeq 
+ 
+  START WITH 1
+  INCREMENT BY 1;
+
+
+
+
+
+CREATE SEQUENCE userid_sq
+  START WITH 1
+  INCREMENT BY 1
+  CACHE 100;
+
+
+
+
+
+create or replace procedure UserCount (Uid out number)
+as
+begin
+select max(uid)
+into uid
+from users;
+end;
+
+
+
+
+create or replace procedure Signin_check (usern in varchar2, checkname out number, passw in varchar2)
+as
+begin
+select count(username)
+into checkname
+from users
+where usern = username
+and passw = passwords;
+end;
+
+
+
+
+create or replace procedure uploaderinfo
+(Uploadercr in varchar2 , CID out sys_refcursor)
+as
+begin
+open CID for
+select IMGTITLE
+from IMAGES I
+where Uploadercr = I.Uploader;
+end;
